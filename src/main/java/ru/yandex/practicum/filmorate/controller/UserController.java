@@ -38,7 +38,7 @@ public class UserController {
         if (user.getId() == null || user.getId() == 0) {
             return ResponseEntity.badRequest().body("Невозможно обновить чего нет");
         }
-        System.out.println(user.toString());
+
         if (user.getName() == null) {
             user.setName(user.getLogin());
         }
