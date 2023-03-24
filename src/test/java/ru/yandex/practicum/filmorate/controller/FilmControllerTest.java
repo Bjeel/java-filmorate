@@ -42,12 +42,12 @@ class FilmControllerTest {
           .contentType("application/json")
       )
       .andExpect(status().isOk())
-      .andExpect(content().string(containsString("Фильм обновлен")))
       .andReturn();
   }
 
   @Test
   public void shouldSuccessUpdateFilmWithoutHavingId() throws Exception {
+    createFilm();
     String updateFilm = "{\"id\":1,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":200}";
 
     this.mockMvc
@@ -57,7 +57,6 @@ class FilmControllerTest {
           .contentType("application/json")
       )
       .andExpect(status().isOk())
-      .andExpect(content().string(containsString("Фильм добавлен")))
       .andReturn();
   }
 
@@ -83,7 +82,6 @@ class FilmControllerTest {
         .contentType("application/json")
       )
       .andExpect(status().isOk())
-      .andExpect(content().string(containsString("Фильм добавлен")))
       .andReturn();
   }
 

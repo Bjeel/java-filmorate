@@ -54,16 +54,17 @@ class UserControllerTest {
           .contentType("application/json")
       )
       .andExpect(status().isOk())
-      .andExpect(content().string(containsString("Пользователь обновлен")))
       .andReturn();
   }
 
   @Test
   public void shouldSuccessUpdateUserWithoutHavingId() throws Exception {
+    createUser();
+
     String updateUser = "{\n" +
       "  \"login\": \"doloreUpdate\",\n" +
       "  \"name\": \"est adipisicing\",\n" +
-      "  \"id\": 122,\n" +
+      "  \"id\": 1,\n" +
       "  \"email\": \"mail@yandex.ru\",\n" +
       "  \"birthday\": \"1976-09-20\"\n" +
       "}";
@@ -75,12 +76,13 @@ class UserControllerTest {
           .contentType("application/json")
       )
       .andExpect(status().isOk())
-      .andExpect(content().string(containsString("Пользователь добавлен")))
       .andReturn();
   }
 
   @Test
   public void shouldSuccessUpdateUserWithoutName() throws Exception {
+    createUser();
+
     String updateUser = "{\n" +
       "  \"login\": \"doloreUpdate\",\n" +
       "  \"id\": 1,\n" +
@@ -95,7 +97,6 @@ class UserControllerTest {
           .contentType("application/json")
       )
       .andExpect(status().isOk())
-      .andExpect(content().string(containsString("Пользователь добавлен")))
       .andReturn();
   }
 
@@ -126,7 +127,6 @@ class UserControllerTest {
           .contentType("application/json")
       )
       .andExpect(status().isOk())
-      .andExpect(content().string(containsString("Пользователь добавлен")))
       .andReturn();
   }
 
@@ -145,7 +145,6 @@ class UserControllerTest {
           .contentType("application/json")
       )
       .andExpect(status().isOk())
-      .andExpect(content().string(containsString("Пользователь добавлен")))
       .andReturn();
   }
 

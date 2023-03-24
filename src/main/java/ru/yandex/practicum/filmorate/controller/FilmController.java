@@ -25,29 +25,36 @@ public class FilmController {
     }
 
     @PostMapping
-    ResponseEntity<String> addFilm(@Valid @RequestBody Film film) {
+    ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
         film.setId(counterId);
         increaseCounterId();
 
         films.put(film.getId(), film);
 
         log.info("Фильм добавлен");
-        return ResponseEntity.ok("Фильм добавлен");
+        return ResponseEntity.ok(film);
     }
 
     @PutMapping
-    ResponseEntity<String> updateFilm(@Valid @RequestBody Film film) {
+    ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
         if (film.getId() == null || film.getId() == 0) {
-            log.info("При обновлении фильма не передан id");
-            return ResponseEntity.badRequest().body("Невозможно обновить чего нет");
+            log.warn("При обновлении фильма не передан id");
+            return ResponseEntity.badRequest().body(film);
         }
 
         boolean isExist = films.containsKey(film.getId());
 
-        films.put(film.getId(), film);
-        log.info(String.format("Фильм с {id=%s} %s", film.getId(), isExist ? "обновлен" : "добавлен"));
+        System.out.println();
 
-        return ResponseEntity.ok(isExist ? "Фильм обновлен" : "Фильм добавлен");
+        if (!isExist) {
+            log.warn(String.format("Фильм с {id=%s} не найден", film.getId()));
+            return ResponseEntity.status(500).body(film);
+        }
+
+        films.put(film.getId(), film);
+        log.info(String.format("Фильм с {id=%s} обновлен", film.getId()));
+
+        return ResponseEntity.ok(film);
     }
 
     private void increaseCounterId() {
