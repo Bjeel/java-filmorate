@@ -56,13 +56,11 @@ class UserControllerTest {
   }
 
   @Test
-  public void shouldSuccessUpdateUserWithoutHavingId() throws Exception {
-    createUser();
-
+  public void shouldFailUpdateUserWithoutHavingId() throws Exception {
     String updateUser = "{\n" +
       "  \"login\": \"doloreUpdate\",\n" +
       "  \"name\": \"est adipisicing\",\n" +
-      "  \"id\": 1,\n" +
+      "  \"id\": 100,\n" +
       "  \"email\": \"mail@yandex.ru\",\n" +
       "  \"birthday\": \"1976-09-20\"\n" +
       "}";
@@ -73,7 +71,7 @@ class UserControllerTest {
           .content(updateUser)
           .contentType("application/json")
       )
-      .andExpect(status().isOk())
+      .andExpect(status().is(500))
       .andReturn();
   }
 

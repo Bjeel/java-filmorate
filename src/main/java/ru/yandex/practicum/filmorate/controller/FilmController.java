@@ -18,25 +18,26 @@ public class FilmController {
     private final HashMap<Integer, Film> films = new HashMap<>();
 
     @GetMapping
-    ResponseEntity<Collection<Film>> getFilms() {
+    private ResponseEntity<Collection<Film>> getFilms() {
         log.info("Загружены все фильмы");
 
         return ResponseEntity.ok(films.values());
     }
 
     @PostMapping
-    ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
+    private ResponseEntity<Film> addFilm(@Valid @RequestBody Film film) {
         film.setId(counterId);
         increaseCounterId();
 
         films.put(film.getId(), film);
 
         log.info("Фильм добавлен");
+
         return ResponseEntity.ok(film);
     }
 
     @PutMapping
-    ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
+    private ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
         if (film.getId() == null || film.getId() == 0) {
             log.warn("При обновлении фильма не передан id");
             return ResponseEntity.badRequest().body(film);

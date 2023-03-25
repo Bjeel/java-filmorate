@@ -17,13 +17,15 @@ public class UserController {
     private final HashMap<Integer, User> users = new HashMap<>();
 
     @GetMapping
-    ResponseEntity<Collection<User>> getUsers() {
+    private ResponseEntity<Collection<User>> getUsers() {
+        log.info("Загружены все пользователи");
+
         return ResponseEntity.ok(users.values());
     }
 
     @PostMapping
-    ResponseEntity<User> addUser(@Valid @RequestBody User user) {
-        if (user.getName() == null) {
+    private ResponseEntity<User> addUser(@Valid @RequestBody User user) {
+        if (isExistUserName(user.getName())) {
             user.setName(user.getLogin());
         }
 
@@ -31,17 +33,19 @@ public class UserController {
         increaseCounterId();
 
         users.put(user.getId(), user);
+        log.info("Пользователь добавлен");
 
         return ResponseEntity.ok(user);
     }
 
     @PutMapping
-    ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
+    private ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
         if (user.getId() == null || user.getId() == 0) {
+            log.info("При обновлении пользователя не передан id");
             return ResponseEntity.badRequest().body(user);
         }
 
-        if (user.getName() == null) {
+        if (isExistUserName(user.getName())) {
             user.setName(user.getLogin());
         }
 
@@ -53,11 +57,16 @@ public class UserController {
         }
 
         users.put(user.getId(), user);
+        log.info(String.format("Пользователь с {id=%s} обновлен", user.getId()));
 
         return ResponseEntity.ok(user);
     }
 
     private void increaseCounterId() {
         counterId += 1;
+    }
+
+    private boolean isExistUserName(String name) {
+        return name == null || name.isBlank();
     }
 }

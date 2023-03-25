@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(controllers  = FilmController.class)
+@WebMvcTest(controllers = FilmController.class)
 class FilmControllerTest {
   @Autowired
   private MockMvc mockMvc;
@@ -44,9 +44,9 @@ class FilmControllerTest {
   }
 
   @Test
-  public void shouldSuccessUpdateFilmWithoutHavingId() throws Exception {
+  public void shouldFailUpdateFilmWithoutHavingId() throws Exception {
     createFilm();
-    String updateFilm = "{\"id\":1,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":200}";
+    String updateFilm = "{\"id\":100,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":200}";
 
     this.mockMvc
       .perform(
@@ -54,7 +54,7 @@ class FilmControllerTest {
           .content(updateFilm)
           .contentType("application/json")
       )
-      .andExpect(status().isOk())
+      .andExpect(status().is(500))
       .andReturn();
   }
 
@@ -75,9 +75,9 @@ class FilmControllerTest {
   @Test
   public void shouldSuccessCreateFilm() throws Exception {
     this.mockMvc.perform(
-      post("/films")
-        .content(defaultFilm)
-        .contentType("application/json")
+        post("/films")
+          .content(defaultFilm)
+          .contentType("application/json")
       )
       .andExpect(status().isOk())
       .andReturn();
