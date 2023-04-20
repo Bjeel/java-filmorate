@@ -7,11 +7,14 @@ import ru.yandex.practicum.filmorate.annotation.IsAfter;
 import javax.validation.constraints.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
 @Data
 public class Film {
   @Positive
-  private Integer id;
+  private Long id;
+
+  private HashSet<Long> likes = new HashSet<>();
 
   @NotBlank(message = "Название не может быть пустым")
   private String name;

@@ -1,72 +1,76 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
+@Validated
 public class UserController {
-    private int counterId = 1;
-    private final HashMap<Integer, User> users = new HashMap<>();
+  @Autowired
+  private UserService userService;
 
-    @GetMapping
-    private ResponseEntity<Collection<User>> getUsers() {
-        log.info("Загружены все пользователи");
+  @GetMapping
+  public ResponseEntity<Collection<User>> getUsers() {
+    return ResponseEntity.ok(userService.getAll());
+  }
 
-        return ResponseEntity.ok(users.values());
-    }
+  @GetMapping("/{id}")
+  public ResponseEntity<User> getUserById(
+    @PathVariable @Positive Long id
+  ) {
+    return ResponseEntity.ok(userService.getById(id));
+  }
 
-    @PostMapping
-    private ResponseEntity<User> addUser(@Valid @RequestBody User user) {
-        if (isExistUserName(user.getName())) {
-            user.setName(user.getLogin());
-        }
+  @PostMapping
+  public ResponseEntity<User> addUser(@Valid @RequestBody User user) {
+    return ResponseEntity.ok(userService.create(user));
+  }
 
-        user.setId(counterId);
-        increaseCounterId();
+  @PutMapping
+  public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
+    return ResponseEntity.ok(userService.update(user));
+  }
 
-        users.put(user.getId(), user);
-        log.info("Пользователь добавлен");
+  @GetMapping("/{id}/friends")
+  public ResponseEntity<List<User>> getUserFriends(
+    @PathVariable @Positive(message = "id: должно быть больше 0") Long id
+  ) {
+    return ResponseEntity.ok(userService.getUserFriends(id));
+  }
 
-        return ResponseEntity.ok(user);
-    }
+  @PutMapping("/{id}/friends/{friendId}")
+  public ResponseEntity<String> addFriend(
+    @PathVariable @Positive(message = "id: должно быть больше 0") Long id,
+    @PathVariable @Positive(message = "friendId: должно быть больше 0") Long friendId
+  ) {
+    return ResponseEntity.ok(userService.addFriend(id, friendId));
+  }
 
-    @PutMapping
-    private ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
-        if (user.getId() == null || user.getId() == 0) {
-            log.info("При обновлении пользователя не передан id");
-            return ResponseEntity.badRequest().body(user);
-        }
+  @DeleteMapping("/{id}/friends/{friendId}")
+  public ResponseEntity<String> deleteFriend(
+    @PathVariable @Positive(message = "id: должно быть больше 0") Long id,
+    @PathVariable @Positive(message = "friendId: должно быть больше 0") Long friendId
+  ) {
+    return ResponseEntity.ok(userService.deleteFriend(id, friendId));
+  }
 
-        if (isExistUserName(user.getName())) {
-            user.setName(user.getLogin());
-        }
-
-        boolean isExist = users.containsKey(user.getId());
-
-        if (!isExist) {
-            log.warn(String.format("Пользователь с {id=%s} не найден", user.getId()));
-            return ResponseEntity.status(500).body(user);
-        }
-
-        users.put(user.getId(), user);
-        log.info(String.format("Пользователь с {id=%s} обновлен", user.getId()));
-
-        return ResponseEntity.ok(user);
-    }
-
-    private void increaseCounterId() {
-        counterId += 1;
-    }
-
-    private boolean isExistUserName(String name) {
-        return name == null || name.isBlank();
-    }
+  @GetMapping("/{id}/friends/common/{otherId}")
+  public ResponseEntity<List<User>> getCommonFriends(
+    @PathVariable @Positive(message = "id: должно быть больше 0") Long id,
+    @PathVariable @Positive(message = "otherId: должно быть больше 0") Long otherId
+  ) {
+    return ResponseEntity.ok(userService.getCommonFriends(id, otherId));
+  }
 }

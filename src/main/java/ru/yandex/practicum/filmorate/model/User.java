@@ -2,14 +2,19 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
 
+import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
 @Data
+@Valid
 public class User {
+    private HashSet<Long> friends = new HashSet<>();
+
     @Positive
-    private Integer id;
+    private Long id;
 
     @Email(message = "Не верный формат электронной почты")
     @NotBlank(message = "Электронная почта не может быть пустой")
