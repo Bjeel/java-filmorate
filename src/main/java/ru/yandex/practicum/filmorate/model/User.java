@@ -21,10 +21,7 @@ public class User {
   private String email;
 
   @NotBlank(message = "Логин не может быть пустым")
-  @Pattern(
-    regexp = "^\\w[a-zA-Z@#0-9.]*$",
-    message = "Логин должен содержать буквы и цифры без пробела"
-  )
+  @Pattern(regexp = "^\\w[a-zA-Z@#0-9.]*$", message = "Логин должен содержать буквы и цифры без пробела")
   private String login;
 
   private String name;

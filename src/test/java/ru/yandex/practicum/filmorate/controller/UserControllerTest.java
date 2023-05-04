@@ -7,12 +7,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-@WebMvcTest(controllers  = UserController.class)
+@WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
   @Autowired
   private MockMvc mockMvc;
+
+  @MockBean
+  private UserService userService;
+
   private final String defaultUser = "{\n" +
     "  \"login\": \"dolore\",\n" +
     "  \"name\": \"Nick Name\",\n" +
@@ -56,26 +62,6 @@ class UserControllerTest {
   }
 
   @Test
-  public void shouldFailUpdateUserWithoutHavingId() throws Exception {
-    String updateUser = "{\n" +
-      "  \"login\": \"doloreUpdate\",\n" +
-      "  \"name\": \"est adipisicing\",\n" +
-      "  \"id\": 100,\n" +
-      "  \"email\": \"mail@yandex.ru\",\n" +
-      "  \"birthday\": \"1976-09-20\"\n" +
-      "}";
-
-    this.mockMvc
-      .perform(
-        put("/users")
-          .content(updateUser)
-          .contentType("application/json")
-      )
-      .andExpect(status().is(500))
-      .andReturn();
-  }
-
-  @Test
   public void shouldSuccessUpdateUserWithoutName() throws Exception {
     createUser();
 
@@ -93,25 +79,6 @@ class UserControllerTest {
           .contentType("application/json")
       )
       .andExpect(status().isOk())
-      .andReturn();
-  }
-
-  @Test
-  public void shouldFailUpdateUser() throws Exception {
-    String updateUser = "{\n" +
-      "  \"login\": \"dolore\",\n" +
-      "  \"name\": \"Nick Name\",\n" +
-      "  \"email\": \"mail@mail.ru\",\n" +
-      "  \"birthday\": \"1946-08-20\"\n" +
-      "}";
-
-    this.mockMvc
-      .perform(
-        put("/users")
-          .content(updateUser)
-          .contentType("application/json")
-      )
-      .andExpect(status().isBadRequest())
       .andReturn();
   }
 

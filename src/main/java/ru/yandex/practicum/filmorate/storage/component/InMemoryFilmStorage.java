@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.storage.component;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
@@ -43,7 +43,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     System.out.println();
 
     if (!isExist) {
-      throw new FilmNotFoundException(String.format("Фильм с {id=%s} не найден", film.getId()));
+      throw new EntityNotFoundException(String.format("Фильм с {id=%s} не найден", film.getId()));
     }
 
     films.put(film.getId(), film);
@@ -66,7 +66,7 @@ public class InMemoryFilmStorage implements FilmStorage {
       return films.get(id);
     }
 
-    throw new FilmNotFoundException(String.format("Фильм с {id=%s} не найден", id));
+    throw new EntityNotFoundException(String.format("Фильм с {id=%s} не найден", id));
   }
 
   private void increaseCounter() {

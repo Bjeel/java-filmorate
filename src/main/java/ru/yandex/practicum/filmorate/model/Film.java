@@ -22,10 +22,7 @@ public class Film {
   @Size(max = 200, message = "Максимальная длина описания — 200 символов;")
   private String description;
 
-  @IsAfter(
-    message = "дата релиза — не раньше 28 декабря 1895",
-    current = "1895-12-28"
-  )
+  @IsAfter(message = "дата релиза — не раньше 28 декабря 1895", current = "1895-12-28")
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
   private LocalDate releaseDate;
 

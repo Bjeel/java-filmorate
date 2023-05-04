@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -20,8 +19,12 @@ import java.util.Optional;
 @RequestMapping("/films")
 @Validated
 public class FilmController {
+  private final FilmService filmService;
+
   @Autowired
-  private FilmService filmService;
+  public FilmController(FilmService filmService) {
+    this.filmService = filmService;
+  }
 
   @GetMapping
   public ResponseEntity<Collection<Film>> getFilms() {
@@ -29,8 +32,13 @@ public class FilmController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Film> getFilmById(@PathVariable @Positive Long id) {
+  public ResponseEntity<Film> getFilmById(@PathVariable Long id) {
     return ResponseEntity.ok(filmService.getById(id));
+  }
+
+  @DeleteMapping()
+  public ResponseEntity<Film> removeFilm(@RequestBody Film film) {
+    return ResponseEntity.ok(filmService.remove(film));
   }
 
   @PostMapping
@@ -44,18 +52,12 @@ public class FilmController {
   }
 
   @PutMapping("/{id}/like/{userId}")
-  public ResponseEntity<Film> addLike(
-    @PathVariable @Positive Long id,
-    @PathVariable @Positive Long userId
-  ) {
+  public ResponseEntity<Film> addLike(@PathVariable Long id, @PathVariable Long userId) {
     return ResponseEntity.ok(filmService.addLike(id, userId));
   }
 
   @DeleteMapping("/{id}/like/{userId}")
-  public ResponseEntity<Film> deleteLike(
-    @PathVariable @Positive Long id,
-    @PathVariable @Positive Long userId
-  ) {
+  public ResponseEntity<Film> deleteLike(@PathVariable Long id, @PathVariable Long userId) {
     return ResponseEntity.ok(filmService.deleteLike(id, userId));
   }
 
