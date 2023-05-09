@@ -7,12 +7,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 @WebMvcTest(controllers = FilmController.class)
 class FilmControllerTest {
   @Autowired
   private MockMvc mockMvc;
+
+  @MockBean
+  private FilmService service;
+
   private final String defaultFilm = "{\"id\":5,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":200}";
 
   @Test
@@ -40,35 +46,6 @@ class FilmControllerTest {
           .contentType("application/json")
       )
       .andExpect(status().isOk())
-      .andReturn();
-  }
-
-  @Test
-  public void shouldFailUpdateFilmWithoutHavingId() throws Exception {
-    createFilm();
-    String updateFilm = "{\"id\":100,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":200}";
-
-    this.mockMvc
-      .perform(
-        put("/films")
-          .content(updateFilm)
-          .contentType("application/json")
-      )
-      .andExpect(status().is(500))
-      .andReturn();
-  }
-
-  @Test
-  public void shouldFailUpdateFilm() throws Exception {
-    String updateFilm = "{\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":200}";
-
-    this.mockMvc
-      .perform(
-        put("/films")
-          .content(updateFilm)
-          .contentType("application/json")
-      )
-      .andExpect(status().isBadRequest())
       .andReturn();
   }
 

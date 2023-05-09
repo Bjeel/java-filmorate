@@ -1,72 +1,71 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
+@Validated
 public class UserController {
-    private int counterId = 1;
-    private final HashMap<Integer, User> users = new HashMap<>();
+  private final UserService userService;
 
-    @GetMapping
-    private ResponseEntity<Collection<User>> getUsers() {
-        log.info("Загружены все пользователи");
+  @Autowired
+  public UserController(UserService userService) {
+    this.userService = userService;
+  }
 
-        return ResponseEntity.ok(users.values());
-    }
+  @GetMapping
+  public ResponseEntity<Collection<User>> getUsers() {
+    return ResponseEntity.ok(userService.getAll());
+  }
 
-    @PostMapping
-    private ResponseEntity<User> addUser(@Valid @RequestBody User user) {
-        if (isExistUserName(user.getName())) {
-            user.setName(user.getLogin());
-        }
+  @GetMapping("/{id}")
+  public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    return ResponseEntity.ok(userService.getById(id));
+  }
 
-        user.setId(counterId);
-        increaseCounterId();
+  @PostMapping
+  public ResponseEntity<User> addUser(@Valid @RequestBody User user) {
+    return ResponseEntity.ok(userService.create(user));
+  }
 
-        users.put(user.getId(), user);
-        log.info("Пользователь добавлен");
+  @DeleteMapping
+  public ResponseEntity<User> deleteUser(@Valid @RequestBody User user) {
+    return ResponseEntity.ok(userService.remove(user));
+  }
 
-        return ResponseEntity.ok(user);
-    }
+  @PutMapping
+  public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
+    return ResponseEntity.ok(userService.update(user));
+  }
 
-    @PutMapping
-    private ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
-        if (user.getId() == null || user.getId() == 0) {
-            log.info("При обновлении пользователя не передан id");
-            return ResponseEntity.badRequest().body(user);
-        }
+  @GetMapping("/{id}/friends")
+  public ResponseEntity<List<User>> getUserFriends(@PathVariable Long id) {
+    return ResponseEntity.ok(userService.getUserFriends(id));
+  }
 
-        if (isExistUserName(user.getName())) {
-            user.setName(user.getLogin());
-        }
+  @PutMapping("/{id}/friends/{friendId}")
+  public ResponseEntity<String> addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+    return ResponseEntity.ok(userService.addFriend(id, friendId));
+  }
 
-        boolean isExist = users.containsKey(user.getId());
+  @DeleteMapping("/{id}/friends/{friendId}")
+  public ResponseEntity<String> deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+    return ResponseEntity.ok(userService.deleteFriend(id, friendId));
+  }
 
-        if (!isExist) {
-            log.warn(String.format("Пользователь с {id=%s} не найден", user.getId()));
-            return ResponseEntity.status(500).body(user);
-        }
-
-        users.put(user.getId(), user);
-        log.info(String.format("Пользователь с {id=%s} обновлен", user.getId()));
-
-        return ResponseEntity.ok(user);
-    }
-
-    private void increaseCounterId() {
-        counterId += 1;
-    }
-
-    private boolean isExistUserName(String name) {
-        return name == null || name.isBlank();
-    }
+  @GetMapping("/{id}/friends/common/{otherId}")
+  public ResponseEntity<List<User>> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+    return ResponseEntity.ok(userService.getCommonFriends(id, otherId));
+  }
 }

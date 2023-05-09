@@ -11,8 +11,11 @@ import java.lang.annotation.*;
 @Constraint(validatedBy = DateValidator.class)
 @Documented
 public @interface IsAfter {
-    String message() default "{message.key}";
-    String current();
-    Class<?>[] groups() default {};
-    Class<? extends Payload>[] payload() default {};
+  String message() default "{message.key}";
+
+  String current();
+
+  Class<?>[] groups() default {};
+
+  Class<? extends Payload>[] payload() default {};
 }
