@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -10,6 +12,8 @@ import java.util.HashSet;
 
 @Data
 @Valid
+@AllArgsConstructor
+@Builder
 public class User {
   private HashSet<Long> friends = new HashSet<>();
 
