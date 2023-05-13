@@ -55,21 +55,20 @@ public class FilmRepository {
 
   public Film findFilmById(Long id) {
     try {
-      StringJoiner sqlQuery = getCommonSelectFilm();
-      sqlQuery.add("WHERE f.id = ?");
+      String sqlQuery = "SELECT * FROM films WHERE id = ?";
 
-      return jdbcTemplate.queryForObject(sqlQuery.toString(), this::mapRowToFilm, id);
+      return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
     } catch (EmptyResultDataAccessException e) {
       throw new EntityNotFoundException(String.format("Фильм с id = %s не найден", id));
     }
   }
 
   public Collection<Film> findAll() {
-    StringJoiner sqlQuery = getCommonSelectFilm();
+    String sqlQuery = "SELECT * FROM films";
 
     log.info("Получение всех фильмов");
 
-    return jdbcTemplate.query(sqlQuery.toString(), this::mapRowToFilm);
+    return jdbcTemplate.query(sqlQuery, this::mapRowToFilm);
   }
 
   public Film update(Film film) {
@@ -99,16 +98,6 @@ public class FilmRepository {
     return jdbcTemplate.update(sqlQuery, id) > 0;
   }
 
-  private StringJoiner getCommonSelectFilm () {
-    StringJoiner sqlQuery = new StringJoiner(" ");
-
-    sqlQuery.add("SELECT f.id, f.description, f.name, f.rating_id, f.duration, f.release_date, r.name AS mpa_name");
-    sqlQuery.add("FROM films AS f");
-    sqlQuery.add("JOIN ratings AS r ON r.id = rating_id");
-
-    return sqlQuery;
-  }
-
   private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
     return Film.builder()
       .id(resultSet.getLong("id"))
@@ -119,7 +108,6 @@ public class FilmRepository {
       .mpa(
         Rating
           .builder()
-          .name(resultSet.getString("mpa_name"))
           .id(resultSet.getInt("rating_id"))
           .build()
       )

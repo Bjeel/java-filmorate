@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
@@ -16,11 +17,14 @@ import java.util.stream.Collectors;
 public class FilmService {
   private final FilmRepository filmRepository;
   private final FilmStorage filmStorage;
+  private final MpaService mpaService;
 
   @Autowired
-  public FilmService(FilmStorage filmStorage, FilmRepository filmRepository) {
+  public FilmService(FilmStorage filmStorage, FilmRepository filmRepository, MpaService mpaService) {
     this.filmStorage = filmStorage;
     this.filmRepository = filmRepository;
+    this.mpaService = mpaService;
+
   }
 
   public Film getById(Long id) {
@@ -31,13 +35,30 @@ public class FilmService {
 
     log.info(String.format("Получение фильма с id %s", id));
 
-    return filmRepository.findFilmById(id);
+    Film film = filmRepository.findFilmById(id);
+
+    film.setMpa(mpaService.findById(film.getMpa().getId()));
+
+    return film;
   }
 
   public Collection<Film> getAll() {
     log.info("Получение всех фильмов");
+    Collection<Film> films = filmRepository.findAll();
+    List<Rating> ratings = mpaService.findAll();
 
-    return filmRepository.findAll();
+    return films
+      .stream()
+      .peek(film -> {
+        Optional<Rating> rating = ratings
+          .stream()
+          .filter(mpa -> mpa.getId() == film.getMpa().getId())
+          .findFirst();
+
+
+        rating.ifPresent(film::setMpa);
+      })
+      .collect(Collectors.toList());
   }
 
   public Film put(Film film) {
