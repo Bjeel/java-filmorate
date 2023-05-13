@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
 import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
@@ -17,25 +18,27 @@ import java.util.stream.Collectors;
 public class FilmService {
   private final FilmRepository filmRepository;
   private final MpaService mpaService;
+  private final GenreService genreService;
 
   @Autowired
-  public FilmService(FilmRepository filmRepository, MpaService mpaService) {
+  public FilmService(FilmRepository filmRepository, MpaService mpaService, GenreService genreService) {
     this.filmRepository = filmRepository;
     this.mpaService = mpaService;
-
+    this.genreService = genreService;
   }
 
-  public Film getById(Long id) {
-    if (id < 0) {
+  public Film getById(Long filmId) {
+    if (filmId < 0) {
       log.error("При обновлении фильма не передан id");
-      throw new EntityNotFoundException(String.format("Пользователь с id: %s не найден", id));
+      throw new EntityNotFoundException(String.format("Пользователь с id: %s не найден", filmId));
     }
 
-    log.info(String.format("Получение фильма с id %s", id));
+    log.info(String.format("Получение фильма с id %s", filmId));
 
-    Film film = filmRepository.findFilmById(id);
+    Film film = filmRepository.findFilmById(filmId);
 
     film.setMpa(mpaService.findById(film.getMpa().getId()));
+    film.setGenres(genreService.findAllByFilm(filmId));
 
     return film;
   }
@@ -44,25 +47,32 @@ public class FilmService {
     log.info("Получение всех фильмов");
     Collection<Film> films = filmRepository.findAll();
     List<Rating> ratings = mpaService.findAll();
+    HashMap<Long, ArrayList<Genre>> genres = genreService.getAllGenresAndFilms();
 
-    return films
-      .stream()
-      .peek(film -> {
+    films
+      .forEach(film -> {
         Optional<Rating> rating = ratings
           .stream()
           .filter(mpa -> mpa.getId() == film.getMpa().getId())
           .findFirst();
 
-
         rating.ifPresent(film::setMpa);
-      })
-      .collect(Collectors.toList());
+        film.setGenres(genres.getOrDefault(film.getId(), new ArrayList<>()));
+      });
+
+    return films;
   }
 
   public Film put(Film film) {
-    log.info(String.format("Фильм с id %s добавлен", film.getId()));
+    Film createdFilm = filmRepository.create(film);
 
-    return filmRepository.create(film);
+    if (film.getGenres() != null) {
+      genreService.addFilm(createdFilm.getId(), film.getGenres());
+    }
+
+    createdFilm.setGenres(genreService.findAllByFilm(film.getId()));
+
+    return createdFilm;
   }
 
   public Film update(Film film) {
@@ -73,7 +83,15 @@ public class FilmService {
 
     log.info(String.format("Фильм с id %s обновлен", film.getId()));
 
-    return filmRepository.update(film);
+    Film updatedFilm = filmRepository.update(film);
+
+    if (film.getGenres() != null) {
+      genreService.addFilm(updatedFilm.getId(), film.getGenres());
+    }
+
+    updatedFilm.setGenres(genreService.findAllByFilm(film.getId()));
+
+    return updatedFilm;
   }
 
   public String remove(Film film) {

@@ -1,27 +1,21 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.yandex.practicum.filmorate.annotation.IsAfter;
 
 import javax.validation.constraints.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
 public class Film {
   @Positive
   private Long id;
-
-  private HashSet<Long> likes = new HashSet<>();
 
   @NotBlank(message = "Название не может быть пустым")
   private String name;
@@ -37,4 +31,5 @@ public class Film {
   private int duration;
 
   private Rating mpa;
+  private List<Genre> genres = new ArrayList<>();
 }

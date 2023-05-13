@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.repository.LikesRepository;
 
 import java.util.List;
@@ -13,10 +14,12 @@ import java.util.stream.Collectors;
 @Service
 public class LikesService {
   LikesRepository likesRepository;
+  MpaService mpaService;
 
   @Autowired
-  public LikesService(LikesRepository likesRepository) {
+  public LikesService(LikesRepository likesRepository, MpaService mpaService) {
     this.likesRepository = likesRepository;
+    this.mpaService = mpaService;
   }
 
   public String create(Long filmId, Long userId) {
@@ -36,7 +39,21 @@ public class LikesService {
   }
 
   public List<Film> getPopular(Optional<Integer> count) {
-    return likesRepository.getPopular(count.orElse(10));
+    List<Film> films = likesRepository.getPopular(count.orElse(10));
+    List<Rating> ratings = mpaService.findAll();
+
+    return films
+      .stream()
+      .peek(film -> {
+        Optional<Rating> rating = ratings
+          .stream()
+          .filter(mpa -> mpa.getId() == film.getMpa().getId())
+          .findFirst();
+
+
+        rating.ifPresent(film::setMpa);
+      })
+      .collect(Collectors.toList());
   }
 
   private void checkIds(Long filmId, Long userId) {

@@ -18,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.StringJoiner;
@@ -111,6 +112,7 @@ public class FilmRepository {
           .id(resultSet.getInt("rating_id"))
           .build()
       )
+      .genres(new ArrayList<>())
       .build();
   }
 }
