@@ -3,26 +3,22 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.repository.UserDao;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.*;
 
 @Slf4j
 @Service
 public class UserService {
-  private final UserDao userDao;
+  private final UserRepository userRepository;
+  private final FriendsService friendsService;
 
   @Autowired
-  public UserService(UserDao userDao) {
-    this.userDao = userDao;
-  }
-
-  public Collection<User> getAll() {
-    log.info("Получение всех пользователей");
-
-    return userDao.findAll();
+  public UserService(UserRepository userRepository, FriendsService friendsService) {
+    this.userRepository = userRepository;
+    this.friendsService = friendsService;
   }
 
   public User create(User user) {
@@ -30,7 +26,7 @@ public class UserService {
       user.setName(user.getLogin());
     }
 
-    return userDao.makeUser(user);
+    return userRepository.create(user);
   }
 
   public User findUserById(Long id) {
@@ -38,11 +34,16 @@ public class UserService {
       throw new EntityNotFoundException("Не верный id");
     }
 
-    return userDao.findUserById(id);
+    return userRepository.findUserById(id);
+  }
+
+  public Collection<User> getAll() {
+    log.info("Получение всех пользователей");
+
+    return userRepository.findAll();
   }
 
   public User update(User user) {
-    System.out.println(user);
     if (user.getId() == null || user.getId() == 0) {
       log.info("При обновлении пользователя не передан id");
       return user;
@@ -54,35 +55,43 @@ public class UserService {
 
     log.info(String.format("Обновление пользователя %s", user.getId()));
 
-    userDao.update(user);
+    userRepository.update(user);
 
     return user;
   }
 
-//  public User remove(User user) {
-//    return userStorage.remove(user);
-//  }
-//
-//  public List<User> getUserFriends(Long userId) {
-//    log.info(String.format("Получение друзей пользователя %s", userId));
-//
-//    return userStorage.get(userId).getFriends().stream()
-//      .map(id -> userStorage.get(id)).collect(Collectors.toList());
-//  }
-//
+  public String remove(Long userId) {
+    if (userId < 0) {
+      throw new EntityNotFoundException("Не верный id");
+    }
+
+    if (userRepository.delete(userId)) {
+      log.info("Пользователь с id = {} удален", userId);
+
+      return "Пользователь удален";
+    }
+
+    return null;
+  }
+
+  public List<User> getUserFriends(Long userId) {
+    if (userId < 0) {
+      throw new EntityNotFoundException("Не верный id");
+    }
+
+    List<Long> ids = friendsService.findFriends(userId);
+
+    if (ids.size() == 0) {
+      return new ArrayList<>();
+    }
+
+    return userRepository.findUsers(ids);
+  }
+
 //  public String addFriend(Long userId, Long friendId) {
 //    checkIds(userId, friendId);
 //
-//    User user = userStorage.get(userId);
-//    user.getFriends().add(friendId);
-//
-//    user = userStorage.get(friendId);
-//    user.getFriends().add(userId);
-//
-//    String result = String.format("Пользователи с айди %s и %s добавлен в друзья", userId, friendId);
-//    log.info(result);
-//
-//    return result;
+//    return friendsService.addFriend(userId, friendId);
 //  }
 //
 //  public String deleteFriend(Long userId, Long friendId) {
@@ -115,15 +124,15 @@ public class UserService {
 //    return intersection.stream().map(id -> userStorage.get(id)).collect(Collectors.toList());
 //  }
 //
-//  private void checkIds(Long id, Long userId) {
-//    if (id < 0) {
-//      throw new EntityNotFoundException(String.format("Пользователь с id: %s не найден", id));
-//    }
-//
-//    if (userId < 0) {
-//      throw new EntityNotFoundException(String.format("Пользователь с id: %s не найден", userId));
-//    }
-//  }
+  private void checkIds(Long id, Long userId) {
+    if (id < 0) {
+      throw new EntityNotFoundException(String.format("Пользователь с id: %s не найден", id));
+    }
+
+    if (userId < 0) {
+      throw new EntityNotFoundException(String.format("Пользователь с id: %s не найден", userId));
+    }
+  }
 
   private boolean isExistUserName(String name) {
     return name == null || name.isBlank();

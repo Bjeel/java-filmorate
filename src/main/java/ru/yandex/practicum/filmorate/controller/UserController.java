@@ -40,20 +40,20 @@ public class UserController {
     return ResponseEntity.ok(userService.findUserById(id));
   }
 
-//  @DeleteMapping
-//  public ResponseEntity<User> deleteUser(@Valid @RequestBody User user) {
-//    return ResponseEntity.ok(userService.remove(user));
-//  }
-//
+  @DeleteMapping
+  public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+    return ResponseEntity.ok(userService.remove(id));
+  }
+
   @PutMapping
   public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
     return ResponseEntity.ok(userService.update(user));
   }
-//
-//  @GetMapping("/{id}/friends")
-//  public ResponseEntity<List<User>> getUserFriends(@PathVariable Long id) {
-//    return ResponseEntity.ok(userService.getUserFriends(id));
-//  }
+
+  @GetMapping("/{id}/friends")
+  public ResponseEntity<List<User>> getUserFriends(@PathVariable Long id) {
+    return ResponseEntity.ok(userService.getUserFriends(id));
+  }
 //
 //  @PutMapping("/{id}/friends/{friendId}")
 //  public ResponseEntity<String> addFriend(@PathVariable Long id, @PathVariable Long friendId) {

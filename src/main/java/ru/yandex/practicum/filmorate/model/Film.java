@@ -1,6 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.yandex.practicum.filmorate.annotation.IsAfter;
 
@@ -10,6 +16,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 
 @Data
+@Builder
 public class Film {
   @Positive
   private Long id;
@@ -28,4 +35,6 @@ public class Film {
 
   @Positive(message = "Продолжительность фильма должна быть положительной")
   private int duration;
+
+  private Rating mpa;
 }
