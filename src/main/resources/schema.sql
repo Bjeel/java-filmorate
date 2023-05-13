@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS "film_genres"
 CREATE TABLE IF NOT EXISTS "likes"
 (
     "film_id" integer,
-    "user_id" integer
+    "user_id" integer,
+    CONSTRAINT likes_con PRIMARY KEY (film_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS "friends"

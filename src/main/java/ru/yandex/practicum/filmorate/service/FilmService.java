@@ -16,12 +16,10 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
   private final FilmRepository filmRepository;
-  private final FilmStorage filmStorage;
   private final MpaService mpaService;
 
   @Autowired
-  public FilmService(FilmStorage filmStorage, FilmRepository filmRepository, MpaService mpaService) {
-    this.filmStorage = filmStorage;
+  public FilmService(FilmRepository filmRepository, MpaService mpaService) {
     this.filmRepository = filmRepository;
     this.mpaService = mpaService;
 
@@ -78,47 +76,7 @@ public class FilmService {
     return filmRepository.update(film);
   }
 
-  public Film remove(Film film) {
-    return filmStorage.remove(film);
-  }
-
-  public List<Film> getPopular(Optional<Integer> count) {
-    int size = count.orElse(10);
-    List<Film> sortedFilms = filmStorage.getAll().stream()
-      .sorted((first, second) -> Integer.compare(second.getLikes().size(), first.getLikes().size()))
-      .collect(Collectors.toList());
-    log.info("Получение популярных фильмов");
-
-    return sortedFilms.subList(0, Math.min(sortedFilms.size(), size));
-  }
-
-  public Film addLike(Long id, Long userId) {
-    checkIds(id, userId);
-
-    Film film = filmStorage.get(id);
-    film.getLikes().add(userId);
-    log.info(String.format("Лайк %s фильму %s добавлен", id, userId));
-
-    return filmStorage.update(film);
-  }
-
-  public Film deleteLike(Long id, Long userId) {
-    checkIds(id, userId);
-
-    Film film = filmStorage.get(id);
-    film.getLikes().remove(userId);
-    log.info(String.format("Лайк %s у фильма %s удален", id, userId));
-
-    return filmStorage.update(film);
-  }
-
-  private void checkIds(Long id, Long userId) {
-    if (id < 0) {
-      throw new EntityNotFoundException(String.format("Фильм с id: %s не найден", id));
-    }
-
-    if (userId < 0) {
-      throw new EntityNotFoundException(String.format("Пользователь с id: %s не найден", userId));
-    }
+  public String remove(Film film) {
+    return filmRepository.delete(film.getId()) ? "Фильм удален" : "Нечего удалять";
   }
 }
