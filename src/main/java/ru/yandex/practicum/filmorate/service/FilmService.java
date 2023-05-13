@@ -8,10 +8,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Rating;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
-import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -70,7 +68,7 @@ public class FilmService {
       genreService.addFilm(createdFilm.getId(), film.getGenres());
     }
 
-    createdFilm.setGenres(genreService.findAllByFilm(film.getId()));
+    createdFilm.setGenres(genreService.findAllByFilm(createdFilm.getId()));
 
     return createdFilm;
   }

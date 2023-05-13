@@ -31,5 +31,5 @@ public class Film {
   private int duration;
 
   private Rating mpa;
-  private List<Genre> genres = new ArrayList<>();
+  private List<Genre> genres;
 }

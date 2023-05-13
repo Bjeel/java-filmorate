@@ -44,8 +44,9 @@ public class LikesRepository {
 
     sqlQuery.add("SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rating_id, COUNT(l.film_id) AS count");
     sqlQuery.add("FROM films AS f");
-    sqlQuery.add("JOIN likes AS l ON f.id = l.film_id");
-    sqlQuery.add("ORDER BY count");
+    sqlQuery.add("LEFT OUTER JOIN likes AS l ON f.id = l.film_id");
+    sqlQuery.add("GROUP BY f.id");
+    sqlQuery.add("ORDER BY count DESC");
     sqlQuery.add("LIMIT ?");
 
     return jdbcTemplate.query(sqlQuery.toString(), this::mapRowToFilm, count);
