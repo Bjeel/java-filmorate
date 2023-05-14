@@ -24,22 +24,14 @@ public class FriendsService {
   }
 
   public String addFriend(Long userId, Long friendId) {
-    boolean hasUserRelative = friendsRepository.findFriendsStatus(userId, friendId);
-    boolean hasFriendRelative = friendsRepository.findFriendsStatus(friendId, userId);
+    return friendsRepository.addFriend(userId, friendId);
+  }
 
-    if (hasUserRelative && hasFriendRelative) {
-      return "Пользователи уже друзья";
-    }
+  public List<Long> findCommon(Long userId, Long friendId) {
+    return friendsRepository.findCommon(userId, friendId);
+  }
 
-    if (!hasFriendRelative && !hasUserRelative) {
-      return friendsRepository.addFriend(userId, friendId);
-    }
-
-    return "";
-
-//    String result = String.format("Пользователи с айди %s и %s добавлен в друзья", userId, friendId);
-//    log.info(result);
-//
-//    return friendsRepository.addFriend(userId, friendId);
+  public String delete(Long userId, Long friendId) {
+    return friendsRepository.delete(userId, friendId) ? "Дружба разрушена" : "Нечего разрушить";
   }
 }

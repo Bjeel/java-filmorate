@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
@@ -24,7 +25,7 @@ public class FriendsRepository {
 
   public List<Long> findFriendsById(Long userId) {
     try {
-      String sqlQuery = "SELECT friend_id FROM friends WHERE target_user_id = ? AND is_friends = true";
+      String sqlQuery = "SELECT friend_second FROM friends WHERE friend_first = ? AND relative_type != '0'";
 
       return jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
     } catch (EmptyResultDataAccessException e) {
@@ -32,51 +33,31 @@ public class FriendsRepository {
     }
   }
 
-  public Boolean findFriendsStatus(Long userId, Long friendId) {
-    try {
-      String sqlQuery = "SELECT is_friends FROM friends WHERE target_user_id = ? AND friend_id = ?";
-
-      return jdbcTemplate.queryForObject(sqlQuery, Boolean.class, userId, friendId);
-    } catch (EmptyResultDataAccessException e) {
-      throw new EntityNotFoundException(String.format("Заявка в друзья между пользователем %s и %s отсутствует", userId, friendId));
-    }
-  }
-
   public String addFriend(Long userId, Long friendId) {
-    return "";
+    String sqlQuery = "INSERT INTO friends VALUES (?, ?, '1')";
 
-//    try {
-//      MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
-//      parameters.addValue("friendId", friendId);
-//
-//      String sqlQuery = "INSERT INTO friends (target_user_id, friend_id, is_friends) VALUES (?, ?, ?)";;
-//
-//      namedParameterJdbcTemplate.execute(sqlQuery, parameters, x -> x);
-//
-//      return jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
-//    } catch (EmptyResultDataAccessException e) {
-//      throw new EntityNotFoundException(String.format("Пользователя с id = %s не найден", userId));
-//    }
+    return jdbcTemplate.update(sqlQuery, userId, friendId) > 0 ? "Запрос на дружбу отправлен" : "";
   }
 
-//  public User findCommonFriends(Long userId, Long friendId) {
-//    try {
-//      String sqlQuery = "SELECT * FROM "friends" WHERE target_user_id = ? AND friend_id = ?";
-//
-//      return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, userId, friendId);
-//    } catch (EmptyResultDataAccessException e) {
-//      throw new EntityNotFoundException(String.format("Пользователя с id = %s не найден", userId));
-//    }
-//  }
-//
-//  public User findAllFriends(Long userId) {
-//    try {
-//      String sqlQuery = "SELECT * FROM "friends" WHERE target_user_id = ? AND friend_id = ?";
-//
-//      return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, userId, friendId);
-//    } catch (EmptyResultDataAccessException e) {
-//      throw new EntityNotFoundException(String.format("Пользователя с id = %s не найден", userId));
-//    }
-//  }
+  public boolean delete(Long userId, Long friendId) {
+      MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
+      parameters.addValue("friendId", friendId);
+
+    String sqlQuery =
+      "UPDATE friends SET relative_type = '0' WHERE friend_first = :userId AND friend_second = :friendId;" +
+      "UPDATE friends SET relative_type = '0' WHERE friend_first = :friendId AND friend_second = :userId;";
+
+    return namedParameterJdbcTemplate.update(sqlQuery, parameters) > 0;
+  }
+
+  public List<Long> findCommon(Long userId, Long friendId) {
+    String sqlQuery =
+      "SELECT friend_second FROM friends " +
+      "WHERE friend_first = ? AND friend_second  IN (" +
+        "SELECT friend_second FROM friends WHERE friend_first = ?"+
+      ")";
+
+    return jdbcTemplate.queryForList(sqlQuery, Long.class, userId, friendId);
+  }
 }
 
