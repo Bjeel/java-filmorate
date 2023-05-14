@@ -39,8 +39,8 @@ public class FilmRepository {
     parameters.addValue("duration", film.getDuration());
     parameters.addValue("mpa", film.getMpa().getId());
 
-    String sqlQuery = "INSERT INTO films (name, description, release_date, duration, rating_id)" +
-      " VALUES (:name, :description, :release_date, :duration, :mpa)";
+    String sqlQuery = "INSERT INTO films (name, description, release_date, duration, rating_id) " +
+      "VALUES (:name, :description, :release_date, :duration, :mpa)";
 
     KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -51,14 +51,14 @@ public class FilmRepository {
     return findFilmById(Objects.requireNonNull(keyHolder.getKey()).longValue());
   }
 
-  public Film findFilmById(Long id) {
+  public Film findFilmById(Long filmId) {
     String sqlQuery = "SELECT * FROM films WHERE id = ?";
-    log.info("Получение фильма с id = {}", film);
+    log.info("Получение фильма с id = {}", filmId);
 
     try {
-      return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
+      return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, filmId);
     } catch (EmptyResultDataAccessException e) {
-      throw new EntityNotFoundException(String.format("Фильм с id = %s не найден", id));
+      throw new EntityNotFoundException(String.format("Фильм с id = %s не найден", filmId));
     }
   }
 
@@ -90,11 +90,11 @@ public class FilmRepository {
     return findFilmById(film.getId());
   }
 
-  public boolean delete(Long id) {
+  public boolean delete(Long filmId) {
     String sqlQuery = "DELETE FROM films WHERE id = ?";
-    log.info("Удаление фильма с id = {}", film.getId());
+    log.info("Удаление фильма с id = {}", filmId);
 
-    return jdbcTemplate.update(sqlQuery, id) > 0;
+    return jdbcTemplate.update(sqlQuery, filmId) > 0;
   }
 
   private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
