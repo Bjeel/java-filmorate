@@ -73,9 +73,7 @@ public class GenreRepository {
   }
 
   public HashMap<Long, ArrayList<Genre>> getAllGenresAndFilms () {
-    String sqlQuery = "SELECT g.id, g.name, fg.film_id " +
-      "FROM film_genres AS fg " +
-      "JOIN genres AS g ON g.id = fg.genre_id";
+    String sqlQuery = "SELECT g.id, g.name, fg.film_id FROM film_genres AS fg JOIN genres AS g ON g.id = fg.genre_id";
 
     log.info("Получение коллекции фильмов с их жанрами");
 

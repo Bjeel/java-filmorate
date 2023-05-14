@@ -39,8 +39,7 @@ public class FilmRepository {
     parameters.addValue("duration", film.getDuration());
     parameters.addValue("mpa", film.getMpa().getId());
 
-    String sqlQuery = "INSERT INTO films (name, description, release_date, duration, rating_id) " +
-      "VALUES (:name, :description, :release_date, :duration, :mpa)";
+    String sqlQuery = "INSERT INTO films (name, description, release_date, duration, rating_id) VALUES (:name, :description, :release_date, :duration, :mpa)";
 
     KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -71,9 +70,7 @@ public class FilmRepository {
   }
 
   public Film update(Film film) {
-    String sqlQuery = "UPDATE films SET " +
-      "name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? " +
-      "where id = ?";
+    String sqlQuery = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? WHERE id = ?";
 
     log.info("Обновление фильма с id = {}", film.getId());
 

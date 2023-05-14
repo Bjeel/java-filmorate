@@ -47,8 +47,7 @@ public class FriendsRepository {
       parameters.addValue("friendId", friendId);
 
     String sqlQuery =
-      "UPDATE friends SET relative_type = '0' WHERE friend_first = :userId AND friend_second = :friendId;" +
-      "UPDATE friends SET relative_type = '0' WHERE friend_first = :friendId AND friend_second = :userId;";
+      "UPDATE friends SET relative_type = '0' WHERE friend_first = :userId AND friend_second = :friendId; UPDATE friends SET relative_type = '0' WHERE friend_first = :friendId AND friend_second = :userId;";
 
     log.info("Удаление друга пользователю с id = {}, пользователя с id = {}", userId, friendId);
 
@@ -57,10 +56,7 @@ public class FriendsRepository {
 
   public List<Long> findCommon(Long userId, Long friendId) {
     String sqlQuery =
-      "SELECT friend_second FROM friends " +
-      "WHERE friend_first = ? AND friend_second  IN (" +
-        "SELECT friend_second FROM friends WHERE friend_first = ?"+
-      ")";
+      "SELECT friend_second FROM friends WHERE friend_first = ? AND friend_second  IN (SELECT friend_second FROM friends WHERE friend_first = ?)";
 
     log.info("Поиск общих друзей пользователей с id = {} и id = {}", userId, friendId);
 

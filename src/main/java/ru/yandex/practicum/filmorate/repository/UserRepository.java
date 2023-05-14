@@ -84,9 +84,7 @@ public class UserRepository {
   public void update(User user) {
       findUserById(user.getId());
 
-      String sqlQuery = "UPDATE users SET " +
-        "email = ?, login = ?, name = ?, birthday = ? " +
-        "where id = ?";
+      String sqlQuery = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?";
 
       log.info("Обновление пользователя с id = {}", user.getId());
 
