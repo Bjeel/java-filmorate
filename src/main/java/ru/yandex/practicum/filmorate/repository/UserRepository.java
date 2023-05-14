@@ -82,20 +82,20 @@ public class UserRepository {
   }
 
   public void update(User user) {
-      findUserById(user.getId());
+    findUserById(user.getId());
 
-      String sqlQuery = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?";
+    String sqlQuery = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?";
 
-      log.info("Обновление пользователя с id = {}", user.getId());
+    log.info("Обновление пользователя с id = {}", user.getId());
 
-      jdbcTemplate.update(
-        sqlQuery,
-        user.getEmail(),
-        user.getLogin(),
-        user.getName(),
-        user.getBirthday(),
-        user.getId()
-      );
+    jdbcTemplate.update(
+      sqlQuery,
+      user.getEmail(),
+      user.getLogin(),
+      user.getName(),
+      user.getBirthday(),
+      user.getId()
+    );
   }
 
   public boolean delete(Long id) {

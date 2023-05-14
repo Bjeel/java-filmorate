@@ -43,8 +43,8 @@ public class FriendsRepository {
   }
 
   public boolean delete(Long userId, Long friendId) {
-      MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
-      parameters.addValue("friendId", friendId);
+    MapSqlParameterSource parameters = new MapSqlParameterSource("userId", userId);
+    parameters.addValue("friendId", friendId);
 
     String sqlQuery =
       "UPDATE friends SET relative_type = '0' WHERE friend_first = :userId AND friend_second = :friendId; UPDATE friends SET relative_type = '0' WHERE friend_first = :friendId AND friend_second = :userId;";
