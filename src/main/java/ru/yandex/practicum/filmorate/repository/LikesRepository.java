@@ -27,6 +27,8 @@ public class LikesRepository {
     String sqlQuery = "INSERT INTO likes (film_id, user_id) VALUES(?, ?)";
 
     try {
+      log.info("Лайк фильму с id = {} от пользователя с id = {}", filmId, userId);
+
       jdbcTemplate.update(sqlQuery, filmId, userId);
     } catch (DuplicateKeyException e) {
       throw new RuntimeException("Данный пользователь уже лайкнул этот фильм");
@@ -35,6 +37,7 @@ public class LikesRepository {
 
   public boolean deleteLike(Long filmId, Long userId) {
     String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
+    log.info("Удаление лайка фильму с id = {} пользователем с id = {}", filmId, userId);
 
     return jdbcTemplate.update(sqlQuery, filmId, userId) > 0;
   }
@@ -48,6 +51,8 @@ public class LikesRepository {
     sqlQuery.add("GROUP BY f.id");
     sqlQuery.add("ORDER BY count DESC");
     sqlQuery.add("LIMIT ?");
+
+    log.info("Получение популярных фильмов в количестве {} фильмов", count);
 
     return jdbcTemplate.query(sqlQuery.toString(), this::mapRowToFilm, count);
   }

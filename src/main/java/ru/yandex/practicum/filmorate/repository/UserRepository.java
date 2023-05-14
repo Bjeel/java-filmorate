@@ -102,6 +102,8 @@ public class UserRepository {
 
   public boolean delete(Long id) {
     String sqlQuery = "DELETE FROM users WHERE id = ?";
+    log.info("Удаление пользователя с id = {}", id);
+
     return jdbcTemplate.update(sqlQuery, id) > 0;
   }
 

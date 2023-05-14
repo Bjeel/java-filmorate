@@ -44,17 +44,18 @@ public class FilmRepository {
 
     KeyHolder keyHolder = new GeneratedKeyHolder();
 
-    log.info("Создание фильма: {}", film);
-
     namedParameterJdbcTemplate.update(sqlQuery, parameters, keyHolder);
+
+    log.info("Фильм успешно создан - {}", film);
 
     return findFilmById(Objects.requireNonNull(keyHolder.getKey()).longValue());
   }
 
   public Film findFilmById(Long id) {
-    try {
-      String sqlQuery = "SELECT * FROM films WHERE id = ?";
+    String sqlQuery = "SELECT * FROM films WHERE id = ?";
+    log.info("Получение фильма с id = {}", film);
 
+    try {
       return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
     } catch (EmptyResultDataAccessException e) {
       throw new EntityNotFoundException(String.format("Фильм с id = %s не найден", id));
@@ -70,13 +71,11 @@ public class FilmRepository {
   }
 
   public Film update(Film film) {
-    findFilmById(film.getId());
-
     String sqlQuery = "UPDATE films SET " +
       "name = ?, description = ?, release_date = ?, duration = ?, rating_id = ? " +
       "where id = ?";
 
-    log.info("Обновление пользователя с id = {}", film.getId());
+    log.info("Обновление фильма с id = {}", film.getId());
 
     jdbcTemplate.update(
       sqlQuery,
@@ -93,6 +92,8 @@ public class FilmRepository {
 
   public boolean delete(Long id) {
     String sqlQuery = "DELETE FROM films WHERE id = ?";
+    log.info("Удаление фильма с id = {}", film.getId());
+
     return jdbcTemplate.update(sqlQuery, id) > 0;
   }
 

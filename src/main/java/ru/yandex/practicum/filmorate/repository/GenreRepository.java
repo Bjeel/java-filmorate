@@ -24,7 +24,7 @@ public class GenreRepository {
 
   public List<Genre> findAll() {
     String sqlQuery = "SELECT * FROM genres ORDER BY id";
-    log.info("Получение всех рейтингов");
+    log.info("Получение всех жанров");
 
     return jdbcTemplate.query(sqlQuery, this::mapRowToGenre);
   }
@@ -47,31 +47,37 @@ public class GenreRepository {
     sqlQuery.add("VALUES");
     genres.forEach(genre -> sqlQuery.add(String.format("(%s, %s),", filmId, genre.getId())));
 
-    log.info(sqlQuery.toString());
+    log.info("Добавление жанров фильму с id = {}", filmId);
+
     jdbcTemplate.update(
       sqlQuery.toString().substring(0, sqlQuery.length() - 1)
     );
   }
 
-  public void deleteGenres(Long id) {
+  public void deleteGenres(Long filmId) {
     String sqlQuery = "DELETE FROM film_genres WHERE film_id = ?";
+    log.info("Удаление жанров фильму с id = {}", filmId);
 
-    jdbcTemplate.update(sqlQuery, id);
+    jdbcTemplate.update(sqlQuery, filmId);
   }
 
-  public List<Genre> findAllByFilmId(Long id) {
+  public List<Genre> findAllByFilmId(Long filmId) {
     String sqlQuery = "SELECT g.id, g.name " +
       "FROM film_genres AS fg " +
       "JOIN genres AS g ON g.id = fg.genre_id " +
       "WHERE fg.film_id = ?";
 
-    return jdbcTemplate.query(sqlQuery, this::mapRowToGenre, id);
+    log.info("Получение всех жанров для фильма с id = {}", filmId);
+
+    return jdbcTemplate.query(sqlQuery, this::mapRowToGenre, filmId);
   }
 
   public HashMap<Long, ArrayList<Genre>> getAllGenresAndFilms () {
     String sqlQuery = "SELECT g.id, g.name, fg.film_id " +
       "FROM film_genres AS fg " +
       "JOIN genres AS g ON g.id = fg.genre_id";
+
+    log.info("Получение коллекции фильмов с их жанрами");
 
     return this.mapToGenresFilms(jdbcTemplate.queryForList(sqlQuery));
   }

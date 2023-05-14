@@ -40,6 +40,10 @@ public class GenreService {
   }
 
   public List<Genre> findAllByFilm(Long id) {
+    if (id < 0) {
+      throw new EntityNotFoundException(String.format("Нет рейтинга с id %s", id));
+    }
+
     return genreRepository.findAllByFilmId(id);
   }
 

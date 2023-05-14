@@ -24,17 +24,20 @@ public class FriendsRepository {
   }
 
   public List<Long> findFriendsById(Long userId) {
+    String sqlQuery = "SELECT friend_second FROM friends WHERE friend_first = ? AND relative_type != '0'";
+
     try {
-      String sqlQuery = "SELECT friend_second FROM friends WHERE friend_first = ? AND relative_type != '0'";
+      log.info("Получение друзей пользователя с id = {}", userId);
 
       return jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
     } catch (EmptyResultDataAccessException e) {
-      throw new EntityNotFoundException(String.format("Пользователя с id = %s не найден", userId));
+      throw new EntityNotFoundException(String.format("Друзья пользователя с id = %s не найден", userId));
     }
   }
 
   public String addFriend(Long userId, Long friendId) {
     String sqlQuery = "INSERT INTO friends VALUES (?, ?, '1')";
+    log.info("Добавления друга пользователю с id = {}, пользователя с id = {}", userId, friendId);
 
     return jdbcTemplate.update(sqlQuery, userId, friendId) > 0 ? "Запрос на дружбу отправлен" : "";
   }
@@ -47,6 +50,8 @@ public class FriendsRepository {
       "UPDATE friends SET relative_type = '0' WHERE friend_first = :userId AND friend_second = :friendId;" +
       "UPDATE friends SET relative_type = '0' WHERE friend_first = :friendId AND friend_second = :userId;";
 
+    log.info("Удаление друга пользователю с id = {}, пользователя с id = {}", userId, friendId);
+
     return namedParameterJdbcTemplate.update(sqlQuery, parameters) > 0;
   }
 
@@ -56,6 +61,8 @@ public class FriendsRepository {
       "WHERE friend_first = ? AND friend_second  IN (" +
         "SELECT friend_second FROM friends WHERE friend_first = ?"+
       ")";
+
+    log.info("Поиск общих друзей пользователей с id = {} и id = {}", userId, friendId);
 
     return jdbcTemplate.queryForList(sqlQuery, Long.class, userId, friendId);
   }
