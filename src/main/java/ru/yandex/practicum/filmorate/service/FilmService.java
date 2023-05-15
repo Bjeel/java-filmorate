@@ -45,7 +45,7 @@ public class FilmService {
     log.info("Получение всех фильмов");
     Collection<Film> films = filmRepository.findAll();
     List<Rating> ratings = mpaService.findAll();
-    HashMap<Long, ArrayList<Genre>> genres = genreService.getAllGenresAndFilms();
+    HashMap<Long, LinkedHashSet<Genre>> genres = genreService.getAllGenresAndFilms();
 
     films
       .forEach(film -> {
@@ -55,7 +55,7 @@ public class FilmService {
           .findFirst();
 
         rating.ifPresent(film::setMpa);
-        film.setGenres(genres.getOrDefault(film.getId(), new ArrayList<>()));
+        film.setGenres(genres.getOrDefault(film.getId(), new LinkedHashSet<>()));
       });
 
     return films;

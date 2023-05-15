@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -10,7 +11,7 @@ import ru.yandex.practicum.filmorate.model.Rating;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -19,6 +20,7 @@ import java.util.StringJoiner;
 public class LikesRepository {
   private final JdbcTemplate jdbcTemplate;
 
+  @Autowired
   public LikesRepository(JdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
   }
@@ -70,7 +72,7 @@ public class LikesRepository {
           .id(resultSet.getInt("rating_id"))
           .build()
       )
-      .genres(new ArrayList<>())
+      .genres(new LinkedHashSet<>())
       .build();
   }
 }

@@ -37,6 +37,9 @@ CREATE TABLE IF NOT EXISTS "users"
     "birthday" date
 );
 
+create unique index if not exists USER_EMAIL_UINDEX on users (email);
+create unique index if not exists USER_LOGIN_UINDEX on users (login);
+
 CREATE TABLE IF NOT EXISTS "film_genres"
 (
     "film_id"  integer,

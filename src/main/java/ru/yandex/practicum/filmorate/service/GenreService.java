@@ -6,13 +6,13 @@ import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.GenreRepository;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Service
 public class GenreService {
-  GenreRepository genreRepository;
+  private final GenreRepository genreRepository;
 
   @Autowired
   public GenreService(GenreRepository genreRepository) {
@@ -31,7 +31,7 @@ public class GenreService {
     return genreRepository.findById(id);
   }
 
-  public void addFilm(Long id, List<Genre> genres) {
+  public void addFilm(Long id, LinkedHashSet<Genre> genres) {
     if (genres.size() != 0) {
       genreRepository.addFilm(id, genres);
     } else {
@@ -39,7 +39,7 @@ public class GenreService {
     }
   }
 
-  public List<Genre> findAllByFilm(Long id) {
+  public LinkedHashSet<Genre> findAllByFilm(Long id) {
     if (id < 0) {
       throw new EntityNotFoundException(String.format("Нет рейтинга с id %s", id));
     }
@@ -47,7 +47,7 @@ public class GenreService {
     return genreRepository.findAllByFilmId(id);
   }
 
-  public HashMap<Long, ArrayList<Genre>> getAllGenresAndFilms() {
+  public HashMap<Long, LinkedHashSet<Genre>> getAllGenresAndFilms() {
     return genreRepository.getAllGenresAndFilms();
   }
 }

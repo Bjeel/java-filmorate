@@ -16,9 +16,7 @@ import ru.yandex.practicum.filmorate.model.Rating;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 @Repository
 @Slf4j
@@ -39,11 +37,14 @@ public class FilmRepository {
     parameters.addValue("duration", film.getDuration());
     parameters.addValue("mpa", film.getMpa().getId());
 
-    String sqlQuery = "INSERT INTO films (name, description, release_date, duration, rating_id) VALUES (:name, :description, :release_date, :duration, :mpa)";
+    StringJoiner sqlQuery = new StringJoiner(" ");
+
+    sqlQuery.add("INSERT INTO films (name, description, release_date, duration, rating_id)");
+    sqlQuery.add("VALUES (:name, :description, :release_date, :duration, :mpa)");
 
     KeyHolder keyHolder = new GeneratedKeyHolder();
 
-    namedParameterJdbcTemplate.update(sqlQuery, parameters, keyHolder);
+    namedParameterJdbcTemplate.update(sqlQuery.toString(), parameters, keyHolder);
 
     log.info("Фильм успешно создан - {}", film);
 
@@ -107,7 +108,7 @@ public class FilmRepository {
           .id(resultSet.getInt("rating_id"))
           .build()
       )
-      .genres(new ArrayList<>())
+      .genres(new LinkedHashSet<>())
       .build();
   }
 }

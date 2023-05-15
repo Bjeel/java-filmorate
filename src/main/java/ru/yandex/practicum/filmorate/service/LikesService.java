@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class LikesService {
-  LikesRepository likesRepository;
-  MpaService mpaService;
+  private final LikesRepository likesRepository;
+  private final MpaService mpaService;
 
   @Autowired
   public LikesService(LikesRepository likesRepository, MpaService mpaService) {

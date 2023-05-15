@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 public class MpaService {
-  MpaRepository mpaRepository;
+  private final MpaRepository mpaRepository;
 
   @Autowired
   public MpaService(MpaRepository mpaRepository) {

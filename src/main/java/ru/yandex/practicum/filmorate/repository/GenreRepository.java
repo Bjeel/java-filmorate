@@ -40,7 +40,7 @@ public class GenreRepository {
     }
   }
 
-  public void addFilm(Long filmId, List<Genre> genres) {
+  public void addFilm(Long filmId, LinkedHashSet<Genre> genres) {
     StringJoiner sqlQuery = new StringJoiner(" ");
     sqlQuery.add(String.format("DELETE FROM film_genres WHERE film_id = %s;", filmId));
     sqlQuery.add("MERGE INTO film_genres (film_id, genre_id) KEY (film_id, genre_id)");
@@ -61,7 +61,7 @@ public class GenreRepository {
     jdbcTemplate.update(sqlQuery, filmId);
   }
 
-  public List<Genre> findAllByFilmId(Long filmId) {
+  public LinkedHashSet<Genre> findAllByFilmId(Long filmId) {
     String sqlQuery = "SELECT g.id, g.name " +
       "FROM film_genres AS fg " +
       "JOIN genres AS g ON g.id = fg.genre_id " +
@@ -69,10 +69,12 @@ public class GenreRepository {
 
     log.info("Получение всех жанров для фильма с id = {}", filmId);
 
-    return jdbcTemplate.query(sqlQuery, this::mapRowToGenre, filmId);
+    List<Genre> genres = jdbcTemplate.query(sqlQuery, this::mapRowToGenre, filmId);
+
+    return new LinkedHashSet<>(genres);
   }
 
-  public HashMap<Long, ArrayList<Genre>> getAllGenresAndFilms() {
+  public HashMap<Long, LinkedHashSet<Genre>> getAllGenresAndFilms() {
     String sqlQuery = "SELECT g.id, g.name, fg.film_id FROM film_genres AS fg JOIN genres AS g ON g.id = fg.genre_id";
 
     log.info("Получение коллекции фильмов с их жанрами");
@@ -88,11 +90,11 @@ public class GenreRepository {
       .build();
   }
 
-  private HashMap<Long, ArrayList<Genre>> mapToGenresFilms(List<Map<String, Object>> allGenres) {
-    HashMap<Long, ArrayList<Genre>> genresFilms = new HashMap<>();
+  private HashMap<Long, LinkedHashSet<Genre>> mapToGenresFilms(List<Map<String, Object>> allGenres) {
+    HashMap<Long, LinkedHashSet<Genre>> genresFilms = new HashMap<>();
 
     allGenres.forEach(x -> {
-      ArrayList<Genre> genres = new ArrayList<>();
+      LinkedHashSet<Genre> genres = new LinkedHashSet<>();
 
       Long filmId = Long.parseLong(x.get("film_id").toString());
 

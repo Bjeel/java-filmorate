@@ -8,15 +8,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 
 @Data
 @Valid
 @AllArgsConstructor
 @Builder
 public class User {
-  private HashSet<Long> friends = new HashSet<>();
-
   @Positive
   private Long id;
 
