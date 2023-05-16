@@ -19,7 +19,7 @@ class FilmControllerTest {
   @MockBean
   private FilmService service;
 
-  private final String defaultFilm = "{\"id\":5,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":200}";
+  private final String defaultFilm = "{\"id\":5,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":200, \"mpa\": {\"id\": 1}}";
 
   @Test
   public void shouldSuccessGetFilms() throws Exception {
@@ -37,7 +37,7 @@ class FilmControllerTest {
   public void shouldSuccessUpdateFilm() throws Exception {
     createFilm();
 
-    String updateFilm = "{\"id\":1,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":200}";
+    String updateFilm = "{\"id\":1,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":200, \"mpa\": {\"id\": 1}}";
 
     this.mockMvc
       .perform(
@@ -62,7 +62,7 @@ class FilmControllerTest {
 
   @Test
   public void shouldFailDuration() throws Exception {
-    String failDuration = "{\"id\":2,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":-200}";
+    String failDuration = "{\"id\":2,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":-200, \"mpa\": {\"id\": 1}}";
 
     this.mockMvc.perform(
         post("/films")
@@ -75,7 +75,7 @@ class FilmControllerTest {
 
   @Test
   public void shouldFailReleaseDate() throws Exception {
-    String failReleaseDate = "{\"id\":2,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"1880-03-24\",\"duration\":200}";
+    String failReleaseDate = "{\"id\":2,\"name\":\"Film1\",\"description\":\"Description\",\"releaseDate\":\"1880-03-24\",\"duration\":200, \"mpa\": {\"id\": 1}}";
     this.mockMvc.perform(
         post("/films")
           .content(failReleaseDate)
@@ -87,7 +87,7 @@ class FilmControllerTest {
 
   @Test
   public void shouldFailDescription() throws Exception {
-    String failDescription = "{\"id\":2,\"name\":\"Film1\",\"description\":\"Пятеро друзей ( комик-группа «Шарло»), приезжают в город Бризуль. Здесь они хотят разыскать господина Огюста Куглова, который задолжал им деньги, а именно 20 миллионов. о Куглов, который за время «своего отсутствия», стал кандидатом Коломбани.\",\"releaseDate\":\"2023-03-24\",\"duration\":200}";
+    String failDescription = "{\"mpa\": {\"id\": 1}, \"id\":2,\"name\":\"Film1\",\"description\":\"Пятеро друзей ( комик-группа «Шарло»), приезжают в город Бризуль. Здесь они хотят разыскать господина Огюста Куглова, который задолжал им деньги, а именно 20 миллионов. о Куглов, который за время «своего отсутствия», стал кандидатом Коломбани.\",\"releaseDate\":\"2023-03-24\",\"duration\":200}";
     this.mockMvc.perform(
         post("/films")
           .content(failDescription)
@@ -99,7 +99,7 @@ class FilmControllerTest {
 
   @Test
   public void shouldFailName() throws Exception {
-    String failName = "{\"id\":4,\"name\":\"\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":200}";
+    String failName = "{\"mpa\": {\"id\": 1}, \"id\":4,\"name\":\"\",\"description\":\"Description\",\"releaseDate\":\"2023-03-24\",\"duration\":200}";
     this.mockMvc.perform(
         post("/films")
           .content(failName)

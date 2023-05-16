@@ -1,20 +1,21 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.yandex.practicum.filmorate.annotation.IsAfter;
 
 import javax.validation.constraints.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 @Data
+@Builder
 public class Film {
   @Positive
   private Long id;
-
-  private HashSet<Long> likes = new HashSet<>();
 
   @NotBlank(message = "Название не может быть пустым")
   private String name;
@@ -28,4 +29,9 @@ public class Film {
 
   @Positive(message = "Продолжительность фильма должна быть положительной")
   private int duration;
+
+  @NonNull
+  private Rating mpa;
+
+  private LinkedHashSet<Genre> genres;
 }

@@ -5,31 +5,72 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.interfaces.FilmStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.repository.FilmRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
-  private final FilmStorage filmStorage;
+  private final FilmRepository filmRepository;
+  private final MpaService mpaService;
+  private final GenreService genreService;
 
   @Autowired
-  public FilmService(FilmStorage filmStorage) {
-    this.filmStorage = filmStorage;
+  public FilmService(FilmRepository filmRepository, MpaService mpaService, GenreService genreService) {
+    this.filmRepository = filmRepository;
+    this.mpaService = mpaService;
+    this.genreService = genreService;
+  }
+
+  public Film getById(Long filmId) {
+    if (filmId < 0) {
+      log.error("При обновлении фильма не передан id");
+      throw new EntityNotFoundException(String.format("Пользователь с id: %s не найден", filmId));
+    }
+
+    log.info(String.format("Получение фильма с id %s", filmId));
+
+    Film film = filmRepository.findFilmById(filmId);
+
+    film.setMpa(mpaService.findById(film.getMpa().getId()));
+    film.setGenres(genreService.findAllByFilm(filmId));
+
+    return film;
   }
 
   public Collection<Film> getAll() {
     log.info("Получение всех фильмов");
+    Collection<Film> films = filmRepository.findAll();
+    List<Rating> ratings = mpaService.findAll();
+    HashMap<Long, LinkedHashSet<Genre>> genres = genreService.getAllGenresAndFilms();
 
-    return filmStorage.getAll();
+    films
+      .forEach(film -> {
+        Optional<Rating> rating = ratings
+          .stream()
+          .filter(mpa -> mpa.getId() == film.getMpa().getId())
+          .findFirst();
+
+        rating.ifPresent(film::setMpa);
+        film.setGenres(genres.getOrDefault(film.getId(), new LinkedHashSet<>()));
+      });
+
+    return films;
   }
 
   public Film put(Film film) {
-    log.info(String.format("Фильм с id %s добавлен", film.getId()));
+    Film createdFilm = filmRepository.create(film);
 
-    return filmStorage.put(film);
+    if (film.getGenres() != null) {
+      genreService.addFilm(createdFilm.getId(), film.getGenres());
+    }
+
+    createdFilm.setGenres(genreService.findAllByFilm(createdFilm.getId()));
+
+    return createdFilm;
   }
 
   public Film update(Film film) {
@@ -40,61 +81,18 @@ public class FilmService {
 
     log.info(String.format("Фильм с id %s обновлен", film.getId()));
 
-    return filmStorage.update(film);
-  }
+    Film updatedFilm = filmRepository.update(film);
 
-  public Film remove(Film film) {
-    return filmStorage.remove(film);
-  }
-
-  public Film getById(Long id) {
-    if (id < 0) {
-      log.error("При обновлении фильма не передан id");
-      throw new EntityNotFoundException(String.format("Пользователь с id: %s не найден", id));
+    if (film.getGenres() != null) {
+      genreService.addFilm(updatedFilm.getId(), film.getGenres());
     }
 
-    log.info(String.format("Получение фильма с id %s", id));
+    updatedFilm.setGenres(genreService.findAllByFilm(film.getId()));
 
-    return filmStorage.get(id);
+    return updatedFilm;
   }
 
-  public List<Film> getPopular(Optional<Integer> count) {
-    int size = count.orElse(10);
-    List<Film> sortedFilms = filmStorage.getAll().stream()
-      .sorted((first, second) -> Integer.compare(second.getLikes().size(), first.getLikes().size()))
-      .collect(Collectors.toList());
-    log.info("Получение популярных фильмов");
-
-    return sortedFilms.subList(0, Math.min(sortedFilms.size(), size));
-  }
-
-  public Film addLike(Long id, Long userId) {
-    checkIds(id, userId);
-
-    Film film = filmStorage.get(id);
-    film.getLikes().add(userId);
-    log.info(String.format("Лайк %s фильму %s добавлен", id, userId));
-
-    return filmStorage.update(film);
-  }
-
-  public Film deleteLike(Long id, Long userId) {
-    checkIds(id, userId);
-
-    Film film = filmStorage.get(id);
-    film.getLikes().remove(userId);
-    log.info(String.format("Лайк %s у фильма %s удален", id, userId));
-
-    return filmStorage.update(film);
-  }
-
-  private void checkIds(Long id, Long userId) {
-    if (id < 0) {
-      throw new EntityNotFoundException(String.format("Фильм с id: %s не найден", id));
-    }
-
-    if (userId < 0) {
-      throw new EntityNotFoundException(String.format("Пользователь с id: %s не найден", userId));
-    }
+  public String remove(Film film) {
+    return filmRepository.delete(film.getId()) ? "Фильм удален" : "Нечего удалять";
   }
 }
